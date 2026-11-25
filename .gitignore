@@ -1,0 +1,14 @@
+
+.env
+docker/migration/*.bacpac
+.vs/
+*.user
+*.suo
+node_modules/
+**/node_modules/
+**/bin/
+**/obj/
+*.db
+*.db-shm
+*.db-wal
+
