@@ -13,7 +13,11 @@ RUN dotnet restore PAQTERIA.Server/PAQTERIA.Server.csproj
 
 COPY PAQTERIA.Server/ PAQTERIA.Server/
 COPY paqteria.client/ paqteria.client/
-RUN cd paqteria.client && npm ci --ignore-scripts
+RUN cd paqteria.client \
+	&& npm ci --ignore-scripts \
+	&& npm run build
+RUN mkdir -p PAQTERIA.Server/wwwroot \
+	&& cp -a paqteria.client/dist/. PAQTERIA.Server/wwwroot/
 RUN dotnet publish PAQTERIA.Server/PAQTERIA.Server.csproj \
 	--configuration Release \
 	--output /app/publish \
@@ -23,8 +27,8 @@ RUN dotnet publish PAQTERIA.Server/PAQTERIA.Server.csproj \
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
 
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "PAQTERIA.Server.dll"]
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://+:${PORT:-10000} exec dotnet PAQTERIA.Server.dll"]
